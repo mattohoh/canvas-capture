@@ -363,6 +363,12 @@ function CCFFMpegServerEncoder( settings ) {
     this.encoder.on( 'error', function( data ) {
         alert(JSON.stringify(data, null, 2));
     }.bind( this ) );
+	this.encoder.on( 'connected', function( data ) {
+		settings.onFFMpegServerConnected?.()
+    }.bind( this ) );
+	this.encoder.on( 'started', function( data ) {
+		settings.onFFMpegServerStarted?.()
+    }.bind( this ) );
 
 }
 
@@ -624,7 +630,8 @@ function CCapture( settings ) {
 		ffmpegserver: CCFFMpegServerEncoder,
 		png: CCPNGEncoder,
 		jpg: CCJPEGEncoder,
-		'webm-mediarecorder': CCStreamEncoder
+		'webm-mediarecorder': CCStreamEncoder,
+		'custom-video-encoder': _settings.customEncoder
     };
 
     var ctor = _encoders[ _settings.format ];
@@ -660,7 +667,7 @@ function CCapture( settings ) {
 
 	var _oldSetTimeout = window.setTimeout,
 		_oldSetInterval = window.setInterval,
-	    	_oldClearInterval = window.clearInterval,
+		_oldClearInterval = window.clearInterval,
 		_oldClearTimeout = window.clearTimeout,
 		_oldRequestAnimationFrame = window.requestAnimationFrame,
 		_oldNow = window.Date.now,
@@ -726,21 +733,26 @@ function CCapture( settings ) {
 			return _performanceTime;
 		};
 
-		function hookCurrentTime() {
-			if( !this._hooked ) {
-				this._hooked = true;
-				this._hookedTime = this.currentTime || 0;
-				this.pause();
-				media.push( this );
-			}
-			return this._hookedTime + _settings.startTime;
-		};
+		if (_settings.syncVideo) {
+			_settings.syncVideo.pause();
+			_settings.syncVideo.addEventListener('seeked', _callCallbacks);
+		} else {
+			function hookCurrentTime() {
+				if( !this._hooked ) {
+					this._hooked = true;
+					this._hookedTime = this.currentTime || 0;
+					this.pause();
+					media.push( this );
+				}
+				return this._hookedTime + _settings.startTime;
+			};
 
-		try {
-			Object.defineProperty( HTMLVideoElement.prototype, 'currentTime', { get: hookCurrentTime } )
-			Object.defineProperty( HTMLAudioElement.prototype, 'currentTime', { get: hookCurrentTime } )
-		} catch (err) {
-			_log(err);
+			try {
+				Object.defineProperty( HTMLVideoElement.prototype, 'currentTime', { get: hookCurrentTime } )
+				Object.defineProperty( HTMLAudioElement.prototype, 'currentTime', { get: hookCurrentTime } )
+			} catch (err) {
+				_log(err);
+			}
 		}
 
 	}
@@ -776,6 +788,10 @@ function CCapture( settings ) {
 		window.Date.prototype.getTime = _oldGetTime;
 		window.Date.now = _oldNow;
 		window.performance.now = _oldPerformanceNow;
+		if (_settings.syncVideo) {
+			_settings.syncVideo.removeEventListener('seeked', _callCallbacks);
+			_callCallbacks();
+		}
 	}
 
 	function _updateTime() {
@@ -882,6 +898,14 @@ function CCapture( settings ) {
 		_updateTime();
 		_log( 'Frame: ' + _frameCount + ' ' + _intermediateFrameCount );
 
+		if (_settings.syncVideo) {
+			_log(`Seek to ${_settings.syncVideo.currentTime + step / 1000}`);
+			_settings.syncVideo.currentTime += step / 1000;
+		}
+		else {
+			_callCallbacks();
+		}
+
 		for( var j = 0; j < _timeouts.length; j++ ) {
 			if( _time >= _timeouts[ j ].triggerTime ) {
 				_call( _timeouts[ j ].callback )
@@ -890,7 +914,8 @@ function CCapture( settings ) {
 				continue;
 			}
 		}
-
+	}
+	function _callCallbacks() {
 		for( var j = 0; j < _intervals.length; j++ ) {
 			if( _time >= _intervals[ j ].triggerTime ) {
 				_call( _intervals[ j ].callback );
@@ -955,14 +980,16 @@ function CCapture( settings ) {
 	}
 }
 
+
 (freeWindow || freeSelf || {}).CCapture = CCapture;
 
   // Some AMD build optimizers like r.js check for condition patterns like the following:
   if (typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
     // Define as an anonymous module so, through path mapping, it can be
     // referenced as the "underscore" module.
-    define(function() {
-    	return CCapture;
+    define(['exports'], function(exports) {
+    	exports.default = CCapture;
+		exports.CCFrameEncoder = CCFrameEncoder;
     });
 }
   // Check for `exports` after `define` in case a build optimizer adds an `exports` object.

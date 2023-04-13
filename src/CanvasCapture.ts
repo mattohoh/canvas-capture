@@ -15,6 +15,8 @@ import { FFmpeg } from '@ffmpeg/ffmpeg';
 import gifWorkerString from 'raw-loader!./CCapture.js/gif.worker.js';
 // @ts-ignore
 import * as JSZip from 'jszip';
+import type { CCapture as CCaptureType } from './CCapture.js/CCapture';
+
 const gifWorkersPath = URL.createObjectURL(new Blob([gifWorkerString]));
 
 let ffmpegPath: string;
@@ -26,14 +28,24 @@ export { showDialog } from './modals';
 const GIF = 'gif' as const;
 export const WEBM = 'webm' as const;
 export const MP4 = 'mp4' as const;
+export const FFMPEGSERVER = 'ffmpegserver' as const;
+export const CUSTOMVIDEOENCODER = 'custom-video-encoder' as const;
 const JPEGZIP = 'jpegzip' as const;
 const PNGZIP = 'pngzip' as const;
 const JPEG = 'jpeg' as const;
 const PNG = 'png' as const;
 type onExport = (blob: Blob, filename: string) => void;
 type CAPTURE_TYPE =
-	typeof GIF | typeof WEBM | typeof MP4 |
+	typeof GIF | typeof WEBM | typeof MP4 | typeof FFMPEGSERVER | typeof CUSTOMVIDEOENCODER |
 	typeof JPEGZIP | typeof PNGZIP;
+
+export declare type CustomVideoEncoderOptions = {
+	format: typeof CUSTOMVIDEOENCODER
+} & Pick<WEBM_OPTIONS, 'fps'|'name'|'ccaptureSettings'|'onError'|'onExportProgress'|'onExport'|'onExportFinish'|'quality'>
+
+export declare type FFMPEGSERVER_OPTIONS = {
+	format: typeof FFMPEGSERVER;
+} & Pick<WEBM_OPTIONS, 'fps'|'name'|'ccaptureSettings'|'onError'|'onExportProgress'|'onExport'|'onExportFinish'|'quality'>
 
 // Save options for hotkey controls.
 export type WEBM_OPTIONS = {
@@ -41,6 +53,7 @@ export type WEBM_OPTIONS = {
 	fps?: number,
 	name?: string,
 	quality?: number, // A number 0-1.
+	ccaptureSettings?: Omit<CCaptureType.Settings, 'format'>;
 	onExportProgress?: (progress: number) => void, // Download is immediate, so this isn't very informative.  progress is a number between 0 and 1.
 	onExport?: onExport,
 	onExportFinish?: () => void,
@@ -52,6 +65,7 @@ export type MP4_OPTIONS = {
 	name?: string,
 	quality?: number, // A number 0-1.
 	ffmpegOptions?: { [key: string]: string },
+	ccaptureSettings?: Omit<CCaptureType.Settings, 'format'>;
 	onExportProgress?: (progress: number) => void, // FFMPEG encoding progress, progress is a number between 0 and 1.
 	onExport?: onExport,
 	onExportFinish?: () => void,
@@ -295,7 +309,7 @@ function startCapture(capture: ACTIVE_CAPTURE) {
 	showDot(isRecording());
 }
 
-export function beginVideoRecord(options?: WEBM_OPTIONS | MP4_OPTIONS) {
+export function beginVideoRecord(options?: WEBM_OPTIONS | MP4_OPTIONS | FFMPEGSERVER_OPTIONS | CustomVideoEncoderOptions) {
 	try {
 		const format = options?.format || MP4; // Default to MP4 record.
 		if (format === MP4) {
@@ -310,7 +324,9 @@ export function beginVideoRecord(options?: WEBM_OPTIONS | MP4_OPTIONS) {
 				showWarning(errorMsg);
 				throw new Error(errorMsg);
 			}
-		} else {
+		} else if (format === FFMPEGSERVER || format === CUSTOMVIDEOENCODER) {
+
+        } else {
 			throw new Error(`invalid video format ${format}.`);
 		}
 		if (activeVideoGifCaptures().length) {
@@ -327,11 +343,12 @@ export function beginVideoRecord(options?: WEBM_OPTIONS | MP4_OPTIONS) {
 		// Create a capturer that exports a WebM video.
 		// @ts-ignore
 		const capturer = new (window.CCapture as CCapture)({
-			format: WEBM,
+			format: format === exports.FFMPEGSERVER || format == exports.CUSTOMVIDEOENCODER ? format : exports.WEBM,
 			name,
 			framerate: options?.fps || 60,
 			quality: quality * 100, // CCapture seems to expect a quality between 0 and 100.
 			verbose: PARAMS.VERBOSE,
+			...(options?.ccaptureSettings ?? {})
 		});
 		const capture = {
 			name,
@@ -614,6 +631,12 @@ async function stopRecordAtIndex(index: number) {
 					saveAs(blob, filename);
 				}
 				if (onExportFinish) onExportFinish();
+				break;
+			}
+		case CUSTOMVIDEOENCODER:
+		case FFMPEGSERVER: // ffmpegserver
+			{
+				await CCaptureSaveAsync(capturer as CCapture)
 				break;
 			}
 		case GIF:

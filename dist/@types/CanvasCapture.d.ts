@@ -1,19 +1,29 @@
 import CCapture from './CCapture.js/CCapture';
 import 'mdn-polyfills/HTMLCanvasElement.prototype.toBlob';
 import * as JSZip from 'jszip';
+import type { CCapture as CCaptureType } from './CCapture.js/CCapture';
 export { showDialog } from './modals';
 declare const GIF: "gif";
 export declare const WEBM: "webm";
 export declare const MP4: "mp4";
+export declare const FFMPEGSERVER: "ffmpegserver";
+export declare const CUSTOMVIDEOENCODER: "custom-video-encoder";
 declare const JPEGZIP: "jpegzip";
 declare const PNGZIP: "pngzip";
 declare type onExport = (blob: Blob, filename: string) => void;
-declare type CAPTURE_TYPE = typeof GIF | typeof WEBM | typeof MP4 | typeof JPEGZIP | typeof PNGZIP;
+declare type CAPTURE_TYPE = typeof GIF | typeof WEBM | typeof MP4 | typeof FFMPEGSERVER | typeof CUSTOMVIDEOENCODER | typeof JPEGZIP | typeof PNGZIP;
+export declare type CustomVideoEncoderOptions = {
+    format: typeof CUSTOMVIDEOENCODER;
+} & Pick<WEBM_OPTIONS, 'fps' | 'name' | 'ccaptureSettings' | 'onError' | 'onExportProgress' | 'onExport' | 'onExportFinish' | 'quality'>;
+export declare type FFMPEGSERVER_OPTIONS = {
+    format: typeof FFMPEGSERVER;
+} & Pick<WEBM_OPTIONS, 'fps' | 'name' | 'ccaptureSettings' | 'onError' | 'onExportProgress' | 'onExport' | 'onExportFinish' | 'quality'>;
 export declare type WEBM_OPTIONS = {
     format?: typeof WEBM;
     fps?: number;
     name?: string;
     quality?: number;
+    ccaptureSettings?: Omit<CCaptureType.Settings, 'format'>;
     onExportProgress?: (progress: number) => void;
     onExport?: onExport;
     onExportFinish?: () => void;
@@ -27,6 +37,7 @@ export declare type MP4_OPTIONS = {
     ffmpegOptions?: {
         [key: string]: string;
     };
+    ccaptureSettings?: Omit<CCaptureType.Settings, 'format'>;
     onExportProgress?: (progress: number) => void;
     onExport?: onExport;
     onExportFinish?: () => void;
@@ -91,11 +102,11 @@ export declare function bindKeyToPNGFramesRecord(key: string, options?: PNG_OPTI
 export declare function bindKeyToJPEGFramesRecord(key: string, options?: JPEG_OPTIONS): void;
 export declare function bindKeyToPNGSnapshot(key: string, options?: PNG_OPTIONS): void;
 export declare function bindKeyToJPEGSnapshot(key: string, options?: JPEG_OPTIONS): void;
-export declare function beginVideoRecord(options?: WEBM_OPTIONS | MP4_OPTIONS): {
+export declare function beginVideoRecord(options?: WEBM_OPTIONS | MP4_OPTIONS | FFMPEGSERVER_OPTIONS | CustomVideoEncoderOptions): {
     name: string;
     capturer: any;
     numFrames: number;
-    type: "webm" | "mp4";
+    type: "webm" | "mp4" | "ffmpegserver" | "custom-video-encoder";
     ffmpegOptions: {
         [key: string]: string;
     } | undefined;

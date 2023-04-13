@@ -14,6 +14,20 @@ export default class CCapture {
     save(cb?: (blob: Blob) => void): void;
 }
 
+export abstract class CCFrameEncoder extends CCaptureEncoder {
+    settings:CCapture.Settings
+    constructor(settings:CCapture.Settings)
+}
+
+export abstract class CCaptureEncoder {
+  constructor (settings:CCapture.Settings)
+  start(canvas:HTMLCanvasElement) : void
+  add(canvas:HTMLCanvasElement) : void
+  save(cb:(blob:Blob) => void) : void
+  dispose() : void
+  step() : void
+}
+
 export namespace CCapture {
     interface Settings {
         /**
@@ -58,5 +72,19 @@ export namespace CCapture {
          * Path to the gif worker script
          */
         workersPath?: string | undefined;
+
+        syncVideo?: HTMLVideoElement;
+
+        /* used for ffmpegserver */
+        url?: string|undefined;
+        codec?: string|undefined;
+        extension?: string|undefined
+	    onFFMpegServerConnected?: () => void;
+        onFFMpegServerStarted?: () => void;
+
+        /* used for custom video encoder */
+        customEncoder?: (new (settings:Settings) => CCaptureEncoder)|undefined
+        outputPath?: string|undefined
+        sourcePath?: string|undefined
     }
 }
