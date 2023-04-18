@@ -2320,7 +2320,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;;(function() {
 if (  true && typeof module.exports !== 'undefined') {
   var Tar = __nested_webpack_require_196447__(846);
   var download = __nested_webpack_require_196447__(173);
-  var GIF = __nested_webpack_require_196447__(769);
+  //var GIF = require('./gif.js');
   var WebMWriter = __nested_webpack_require_196447__(166);
 }
 
@@ -2837,7 +2837,7 @@ function CCGIFEncoder( settings ) {
   	this.canvas = document.createElement( 'canvas' );
   	this.ctx = this.canvas.getContext( '2d' );
   	this.sizeSet = false;
-
+	var GIF = __nested_webpack_require_196447__(769);
   	this.encoder = new GIF({
 		workers: settings.workers,
 		quality: settings.quality,
@@ -2984,7 +2984,7 @@ function CCapture( settings ) {
 
 	var _oldSetTimeout = window.setTimeout,
 		_oldSetInterval = window.setInterval,
-	    	_oldClearInterval = window.clearInterval,
+		_oldClearInterval = window.clearInterval,
 		_oldClearTimeout = window.clearTimeout,
 		_oldRequestAnimationFrame = window.requestAnimationFrame,
 		_oldNow = window.Date.now,
@@ -3222,7 +3222,8 @@ function CCapture( settings ) {
 		else {
 			_callCallbacks();
 		}
-
+	}
+	function _callCallbacks() {
 		for( var j = 0; j < _timeouts.length; j++ ) {
 			if( _time >= _timeouts[ j ].triggerTime ) {
 				_call( _timeouts[ j ].callback )
@@ -3231,8 +3232,7 @@ function CCapture( settings ) {
 				continue;
 			}
 		}
-	}
-	function _callCallbacks() {
+
 		for( var j = 0; j < _intervals.length; j++ ) {
 			if( _time >= _intervals[ j ].triggerTime ) {
 				_call( _intervals[ j ].callback );
@@ -3297,7 +3297,7 @@ function CCapture( settings ) {
 	}
 }
 
-CCapture.CCFrameEncoder = CCFrameEncoder;
+
 (freeWindow || freeSelf || {}).CCapture = CCapture;
 
   // Some AMD build optimizers like r.js check for condition patterns like the following:
@@ -4937,7 +4937,7 @@ module.exports = JSON.parse('{"name":"@ffmpeg/ffmpeg","version":"0.10.1","descri
 /******/ 	var __webpack_module_cache__ = {};
 /******/ 	
 /******/ 	// The require function
-/******/ 	function __nested_webpack_require_306811__(moduleId) {
+/******/ 	function __nested_webpack_require_306799__(moduleId) {
 /******/ 		// Check if module is in cache
 /******/ 		var cachedModule = __webpack_module_cache__[moduleId];
 /******/ 		if (cachedModule !== undefined) {
@@ -4951,7 +4951,7 @@ module.exports = JSON.parse('{"name":"@ffmpeg/ffmpeg","version":"0.10.1","descri
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
-/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __nested_webpack_require_306811__);
+/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __nested_webpack_require_306799__);
 /******/ 	
 /******/ 		// Flag the module as loaded
 /******/ 		module.loaded = true;
@@ -4964,9 +4964,9 @@ module.exports = JSON.parse('{"name":"@ffmpeg/ffmpeg","version":"0.10.1","descri
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	(() => {
 /******/ 		// define getter functions for harmony exports
-/******/ 		__nested_webpack_require_306811__.d = (exports, definition) => {
+/******/ 		__nested_webpack_require_306799__.d = (exports, definition) => {
 /******/ 			for(var key in definition) {
-/******/ 				if(__nested_webpack_require_306811__.o(definition, key) && !__nested_webpack_require_306811__.o(exports, key)) {
+/******/ 				if(__nested_webpack_require_306799__.o(definition, key) && !__nested_webpack_require_306799__.o(exports, key)) {
 /******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
 /******/ 				}
 /******/ 			}
@@ -4975,7 +4975,7 @@ module.exports = JSON.parse('{"name":"@ffmpeg/ffmpeg","version":"0.10.1","descri
 /******/ 	
 /******/ 	/* webpack/runtime/global */
 /******/ 	(() => {
-/******/ 		__nested_webpack_require_306811__.g = (function() {
+/******/ 		__nested_webpack_require_306799__.g = (function() {
 /******/ 			if (typeof globalThis === 'object') return globalThis;
 /******/ 			try {
 /******/ 				return this || new Function('return this')();
@@ -4987,13 +4987,13 @@ module.exports = JSON.parse('{"name":"@ffmpeg/ffmpeg","version":"0.10.1","descri
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
 /******/ 	(() => {
-/******/ 		__nested_webpack_require_306811__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 		__nested_webpack_require_306799__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/make namespace object */
 /******/ 	(() => {
 /******/ 		// define __esModule on exports
-/******/ 		__nested_webpack_require_306811__.r = (exports) => {
+/******/ 		__nested_webpack_require_306799__.r = (exports) => {
 /******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
 /******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 /******/ 			}
@@ -5003,7 +5003,7 @@ module.exports = JSON.parse('{"name":"@ffmpeg/ffmpeg","version":"0.10.1","descri
 /******/ 	
 /******/ 	/* webpack/runtime/node module decorator */
 /******/ 	(() => {
-/******/ 		__nested_webpack_require_306811__.nmd = (module) => {
+/******/ 		__nested_webpack_require_306799__.nmd = (module) => {
 /******/ 			module.paths = [];
 /******/ 			if (!module.children) module.children = [];
 /******/ 			return module;
@@ -5020,10 +5020,10 @@ var exports = __webpack_exports__;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CCFrameEncoder = exports.CCapture = exports.CanvasCapture = void 0;
 // Default export.
-var CanvasCapture = __nested_webpack_require_306811__(914);
+var CanvasCapture = __nested_webpack_require_306799__(914);
 exports.CanvasCapture = CanvasCapture;
 exports["default"] = CanvasCapture;
-var CCapture_1 = __nested_webpack_require_306811__(886);
+var CCapture_1 = __nested_webpack_require_306799__(886);
 exports.CCapture = CCapture_1.default;
 Object.defineProperty(exports, "CCFrameEncoder", ({ enumerable: true, get: function () { return CCapture_1.CCFrameEncoder; } }));
 

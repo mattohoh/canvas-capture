@@ -3,7 +3,7 @@
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   var Tar = require('./tar.js');
   var download = require('./download.js');
-  var GIF = require('./gif.js');
+  //var GIF = require('./gif.js');
   var WebMWriter = require('./webm-writer-0.2.0');
 }
 
@@ -520,7 +520,7 @@ function CCGIFEncoder( settings ) {
   	this.canvas = document.createElement( 'canvas' );
   	this.ctx = this.canvas.getContext( '2d' );
   	this.sizeSet = false;
-
+	var GIF = require('./gif.js');
   	this.encoder = new GIF({
 		workers: settings.workers,
 		quality: settings.quality,
@@ -905,7 +905,8 @@ function CCapture( settings ) {
 		else {
 			_callCallbacks();
 		}
-
+	}
+	function _callCallbacks() {
 		for( var j = 0; j < _timeouts.length; j++ ) {
 			if( _time >= _timeouts[ j ].triggerTime ) {
 				_call( _timeouts[ j ].callback )
@@ -914,8 +915,7 @@ function CCapture( settings ) {
 				continue;
 			}
 		}
-	}
-	function _callCallbacks() {
+
 		for( var j = 0; j < _intervals.length; j++ ) {
 			if( _time >= _intervals[ j ].triggerTime ) {
 				_call( _intervals[ j ].callback );

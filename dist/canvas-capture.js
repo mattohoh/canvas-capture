@@ -2316,7 +2316,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;;(function() {
 if ( true && typeof module.exports !== 'undefined') {
   var Tar = __webpack_require__(846);
   var download = __webpack_require__(173);
-  var GIF = __webpack_require__(769);
+  //var GIF = require('./gif.js');
   var WebMWriter = __webpack_require__(166);
 }
 
@@ -2833,7 +2833,7 @@ function CCGIFEncoder( settings ) {
   	this.canvas = document.createElement( 'canvas' );
   	this.ctx = this.canvas.getContext( '2d' );
   	this.sizeSet = false;
-
+	var GIF = __webpack_require__(769);
   	this.encoder = new GIF({
 		workers: settings.workers,
 		quality: settings.quality,
@@ -2980,7 +2980,7 @@ function CCapture( settings ) {
 
 	var _oldSetTimeout = window.setTimeout,
 		_oldSetInterval = window.setInterval,
-	    	_oldClearInterval = window.clearInterval,
+		_oldClearInterval = window.clearInterval,
 		_oldClearTimeout = window.clearTimeout,
 		_oldRequestAnimationFrame = window.requestAnimationFrame,
 		_oldNow = window.Date.now,
@@ -3218,7 +3218,8 @@ function CCapture( settings ) {
 		else {
 			_callCallbacks();
 		}
-
+	}
+	function _callCallbacks() {
 		for( var j = 0; j < _timeouts.length; j++ ) {
 			if( _time >= _timeouts[ j ].triggerTime ) {
 				_call( _timeouts[ j ].callback )
@@ -3227,8 +3228,7 @@ function CCapture( settings ) {
 				continue;
 			}
 		}
-	}
-	function _callCallbacks() {
+
 		for( var j = 0; j < _intervals.length; j++ ) {
 			if( _time >= _intervals[ j ].triggerTime ) {
 				_call( _intervals[ j ].callback );
@@ -3293,7 +3293,7 @@ function CCapture( settings ) {
 	}
 }
 
-CCapture.CCFrameEncoder = CCFrameEncoder;
+
 (freeWindow || freeSelf || {}).CCapture = CCapture;
 
   // Some AMD build optimizers like r.js check for condition patterns like the following:
